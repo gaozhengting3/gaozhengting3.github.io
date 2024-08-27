@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta
+			name="description"
+			content="Deformable Neural Radiance Fields creates free-viewpoint portraits (nerfies) from casually captured videos."
+		/>
+		<meta name="keywords" content="Nerfies, D-NeRF, NeRF" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>DanceLDM: Latent-based diffusion model for dance generation and editing conditioned on music and text prompt</title>
+
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+
+			function gtag() {
+				dataLayer.push(arguments);
+			}
+
+			gtag('js', new Date());
+
+			gtag('config', 'G-PYVRSFMDRL');
+		</script>
+
+		<link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet" />
+
+		<link rel="stylesheet" href="./static/css/bulma.min.css" />
+		<link rel="stylesheet" href="./static/css/bulma-carousel.min.css" />
+		<link rel="stylesheet" href="./static/css/bulma-slider.min.css" />
+		<link rel="stylesheet" href="./static/css/fontawesome.all.min.css" />
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css" />
+		<link rel="stylesheet" href="./static/css/index.css" />
+		<link rel="stylesheet" href="./static/css/test.css" />
+		<link rel="icon" href="./static/images/logo.jpg" />
+
+		<!-- tailwindcss -->
+		<script src="https://cdn.tailwindcss.com"></script>
+		<script>
+			tailwind.config = {
+				theme: {
+					extend: {
+						colors: {
+							bg: '#314c78',
+							btn: '#6262AE',
+							nav: '#1C2229',
+							'video-container': '#2D3F54',
+							video: '#495363',
+							container: '#29313D',
+						},
+					},
+				},
+			};
+		</script>
+		<script
+			src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"
+			integrity="sha512-11t8Q+vY9JlCrr+PveZKTYJq8n7O09Y5X/pk/aMd3vJugSvu4xOunGEUzaADqL3I8cZKE/pBwwCfXzDkRJh2sQ=="
+			crossorigin="anonymous"
+			referrerpolicy="no-referrer"
+		></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<script defer src="./static/js/fontawesome.all.min.js"></script>
+		<script src="./static/js/bulma-carousel.min.js"></script>
+		<script src="./static/js/bulma-slider.min.js"></script>
+		<script src="./static/js/index.js"></script>
+	</head>
+	<body>
+		<nav class="navbar" role="navigation" aria-label="main navigation">
+			<div class="navbar-brand">
+				<a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+					<span aria-hidden="true"></span>
+					<span aria-hidden="true"></span>
+					<span aria-hidden="true"></span>
+				</a>
+			</div>
+		</nav>
+
+		<section class="hero">
+			<div class="hero-body">
+				<div class="container is-max-desktop">
+					<div class="columns is-centered">
+						<div class="column has-text-centered">
+							<h1 class="title is-1 publication-title">
+								DanceLDM: Latent-based diffusion model for dance generation and editing conditioned on music and text prompt
+							</h1>
+							<div class="is-size-5 publication-authors">
+								<span class="author-block">
+									<a href="https://sites.google.com/view/ntust-miislab">Ming-Cong Su</a><sup>1</sup>,</span
+								>
+								<span class="author-block">
+									<a href="https://sites.google.com/view/ntust-miislab">Tse-Yu Pan</a><sup>2</sup>,</span
+								>
+
+								<div class="is-size-5 publication-authors">
+									<span class="author-block"><sup>1</sup>National Taiwan University of Science and Technology,</span>
+									<span class="author-block"><sup>2</sup>MiiSLab</span>
+								</div>
+
+								<div class="column has-text-centered">
+									<div class="publication-links">
+										<!-- PDF Link. -->
+										<span class="link-block">
+											<a
+												href="https://arxiv.org/pdf/2011.12948"
+												class="external-link button is-normal is-rounded is-dark"
+											>
+												<span class="icon">
+													<i class="fas fa-file-pdf"></i>
+												</span>
+												<span>Paper</span>
+											</a>
+										</span>
+										<span class="link-block">
+											<a
+												href="https://arxiv.org/abs/2011.12948"
+												class="external-link button is-normal is-rounded is-dark"
+											>
+												<span class="icon">
+													<i class="ai ai-arxiv"></i>
+												</span>
+												<span>arXiv</span>
+											</a>
+										</span>
+										<!-- Video Link. -->
+										<span class="link-block">
+											<a
+												href="https://www.youtube.com/watch?v=MrKrnHhk8IA"
+												class="external-link button is-normal is-rounded is-dark"
+											>
+												<span class="icon">
+													<i class="fab fa-youtube"></i>
+												</span>
+												<span>Video</span>
+											</a>
+										</span>
+										<!-- Code Link. -->
+										<span class="link-block">
+											<a
+												href="https://github.com/google/nerfies"
+												class="external-link button is-normal is-rounded is-dark"
+											>
+												<span class="icon">
+													<i class="fab fa-github"></i>
+												</span>
+												<span>Code</span>
+											</a>
+										</span>
+										<!-- Dataset Link. -->
+										<span class="link-block">
+											<a
+												href="https://github.com/google/nerfies/releases/tag/0.1"
+												class="external-link button is-normal is-rounded is-dark"
+											>
+												<span class="icon">
+													<i class="far fa-images"></i>
+												</span>
+												<span>Data</span>
+											</a>
+										</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section">
+			<div class="columns is-centered has-text-centered">
+				<div class="column is-four-fifths">
+					<div class="publication-video">
+						<img src="./static/images/danceldm.png" alt="Teaser Image" style="width: 80%" />
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="hero is-light is-small">
+			<div class="hero-body">
+				<div class="container">
+					<div id="results-carousel" class="carousel results-carousel">
+						<div class="item item-steve" autoplay controls muted loop playsinline height="100%">
+							<video poster="" id="t1">
+								<source src="./static/videos/test_video1.mp4" type="video/mp4" />
+							</video>
+						</div>
+						<div class="item item-chair-tp">
+							<video poster="" id="t2" autoplay controls muted loop playsinline height="100%">
+								<source src="./static/videos/test_video2.mp4" type="video/mp4" />
+							</video>
+						</div>
+						<div class="item item-shiba">
+							<video poster="" id="t3" autoplay controls muted loop playsinline height="100%">
+								<source src="./static/videos/test_video3.mp4" type="video/mp4" />
+							</video>
+						</div>
+						<div class="item item-chair-tp">
+							<video poster="" id="t4" autoplay controls muted loop playsinline height="100%">
+								<source src="./static/videos/test_video2.mp4" type="video/mp4" />
+							</video>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="section">
+			<div class="container is-max-desktop">
+				<!-- Abstract. -->
+				<div class="columns is-centered has-text-centered">
+					<div class="column is-four-fifths">
+						<h2 class="title is-3">Abstract</h2>
+						<div class="content has-text-justified">
+							<p>
+								Generating realistic 3D dance based on music is a unique and challenging task because real dance is a free
+								and creative form of artistic expression. Human dance styles are diverse and ever-changing. Existing methods
+								fail to perform well on out-of-domain music inputs or to generate movements of new dance styles.
+								Accordingly, in this paper, we propose the Dance Latent Diffusion Model (DanceLDM), an advanced editable
+								dance generation method for creating realistic and diverse 3D dance movements, while providing a text prompt
+								interface for dance movement editing. Inspired by the Latent Diffusion Model, we combine a VAE-based motion
+								autoencoder with a Transformer-based dance diffusion model, where the motion autoencoder extracts human
+								motion features and learns a low-dimensional latent space, and the dance diffusion model subsequently learns
+								dance motion generation in this latent space. To generate new and richly diverse dance movements, DanceLDM
+								learns both Text-to-Motion and Music-to-Dance tasks, to enable effective dance editing guided by text
+								prompts after generating dance from music. To further improve the rhythm of the generated dance, we
+								incorporate beat signals into the model to generate more rhythmic dance movements. Experimental results
+								demonstrate that, compared to existing methods, our proposed model achieves state-of-the-art performance on
+								the Music-to-Dance generation benchmark and achieves comparable performance on the Text-to-Motion generation
+								task.
+							</p>
+						</div>
+					</div>
+				</div>
+				<!--/ Abstract. -->
+			</div>
+		</section>
+
+		<section class="section">
+			<!-- Paper video. -->
+			<div class="columns is-centered has-text-centered">
+				<div class="column is-four-fifths">
+					<h2 class="title is-3">Framework</h2>
+					<div class="publication-video">
+						<img src="./static/images/method overview.png" alt="Teaser Image" style="width: 80%" />
+					</div>
+				</div>
+			</div>
+			<!--/ Paper video. -->
+		</section>
+
+		<!-- todo:  ------------------------------------------------------------------------------------------------------------------------------------------------- -->
+		<section class="bg-bg px-2 py-2 lg:!px-4 lg:!py-8 text-white relative items-center justify-center h-fit">
+			<div class="flex flex-col w-full h-full bg-nav rounded-md p-4 lg:!p-8">
+				<nav class="flex lg:!p-5">
+					<div class="lg:px-20 text-2xl lg:text-4xl text-white flex items-center">DanceLDM</div>
+				</nav>
+
+				<form id="promptForm" enctype="multipart/form-data">
+					<div class="py-10 px-4 bg-container grid grid-cols-1 lg:grid-cols-2 rounded-md">
+						<div class="container-left lg:px-6 flex flex-col">
+							<div class="upload">
+								<div class="flex h-fit mb-8 items-center text-xl font-bold">
+									<div class="w-1 h-7 me-2 rounded-md bg-gradient-to-b from-[#6887BF] to-[#945F9F]"></div>
+									Upload Music
+								</div>
+								<div class="flex gap-10">
+									<div class="">
+										<label for="file" class="flex gap-2 items-center">
+											<div
+												class="btn-upload flex px-9 py-2 gap-2 cursor-pointer active:bg-violet-500/90 bg-btn rounded-sm items-center"
+											>
+												<i class="fas fa-upload"></i>Upload Music
+												<input id="file" type="file" accept=".mp3" class="hidden" />
+											</div>
+											<div class="filename-text"></div>
+										</label>
+									</div>
+								</div>
+							</div>
+							<div class="video-container flex flex-col mt-8 p-4 bg-video-container rounded-md">
+								<div class="video-title pb-4 text-lg font-semibold items-center">Dance Video</div>
+								<div class="bg-video rounded-md items-center justify-center flex aspect-video">
+									<video src="" class="dance-video hidden" controls></video>
+								</div>
+							</div>
+						</div>
+						<div class="container-right mt-8 lg:mt-0 lg:px-6 flex flex-col">
+							<div class="edit w-full">
+								<div class="flex h-fit mb-8 items-center text-xl font-bold">
+									<div class="w-1 h-7 me-2 rounded-md bg-gradient-to-b from-[#6887BF] to-[#945F9F]"></div>
+									Edit Dance
+								</div>
+								<div class="setting mb-5">
+									<div class="description mb-2">Edit times Setting</div>
+									<div class="slider flex items-center gap-2">
+										<div class="slider-track-container">
+											<div class="slider-track">
+												<div id="startHandle" class="slider-handle opacity-0"></div>
+												<div id="endHandle" class="slider-handle opacity-0"></div>
+											</div>
+										</div>
+										<div class="slider-label text-nowrap text-sm"></div>
+									</div>
+								</div>
+
+								<div class="flex gap-4 mb-5">
+									<div class="setting flex-1">
+										<label class="description">
+											Start Time
+											<div class="time-input mt-2 flex gap-1">
+												<div class="flex-1 flex gap-1">
+													<input
+														min="0"
+														type="number"
+														value="0"
+														id="startTime"
+														step="0.001"
+														disabled
+														class="number-input bg-gray-700 p-2 text-slate-200 w-full"
+													/>
+													<div class="flex flex-col gap-1">
+														<div class="increase-startTime-btn arrow flex-1 bg-gray-700 px-1">
+															<i class="fas fa-chevron-up"></i>
+														</div>
+														<div class="decrease-startTime-btn arrow flex-1 bg-gray-700 px-1">
+															<i class="fas fa-chevron-down"></i>
+														</div>
+													</div>
+												</div>
+											</div>
+										</label>
+									</div>
+									<!--  -->
+									<div class="setting flex-1">
+										<label class="description">
+											End Time
+											<div class="time-input mt-2 flex gap-1">
+												<div class="flex-1 flex gap-1">
+													<input
+														min="0"
+														type="number"
+														value="0"
+														id="endTime"
+														step="0.001"
+														disabled
+														class="number-input bg-gray-700 p-2 text-slate-200 w-full"
+													/>
+													<div class="flex flex-col gap-1">
+														<div class="increase-endTime-btn arrow flex-1 bg-gray-700 px-1">
+															<i class="fas fa-chevron-up"></i>
+														</div>
+														<div class="decrease-endTime-btn arrow flex-1 bg-gray-700 px-1">
+															<i class="fas fa-chevron-down"></i>
+														</div>
+													</div>
+												</div>
+											</div>
+										</label>
+									</div>
+								</div>
+
+								<div class="setting mb-5">
+									<div class="description mb-2">Action Description</div>
+									<div class="time-input flex">
+										<input
+											type="text"
+											placeholder="Please enter action description"
+											class="description-input flex-1 bg-gray-700 p-2 text-slate-200 active:ring-0"
+										/>
+									</div>
+								</div>
+								<div class="setting-submit flex">
+									<input
+										value="Generate"
+										id="submit"
+										type="submit"
+										class="submit-btn py-1 px-14 cursor-pointer active:bg-violet-500/90 bg-btn rounded-sm items-center"
+									/>
+								</div>
+							</div>
+							<div class="history mt-10 w-full">
+								<div class="flex h-fit mb-8 items-center text-xl font-bold">
+									<div class="w-1 h-7 me-2 rounded-md bg-gradient-to-b from-[#6887BF] to-[#945F9F]"></div>
+									History
+								</div>
+								<div id="historyContainer" class="history-container flex flex-wrap gap-4 pb-4"></div>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="loading-modal absolute flex justify-center items-center inset-0 bg-gray-700/90 hidden">
+				<div class="modal-body flex flex-col items-center gap-4">
+					<div class="text-2xl mt-4">Generating....</div>
+
+					<div class="progress-container w-screen flex items-center justify-center">
+						<div class="w-[70%] lg:w-96 bg-gray-200 rounded-full h-4 mb-4 bg-gray-600">
+							<div class="progress h-4 rounded-full bg-gray-100" style="width: 0%"></div>
+						</div>
+					</div>
+
+					<!-- circle -->
+					<!-- <div
+						class="inline-block h-16 w-16 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white"
+						role="status"
+					>
+						<span class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
+							>Generating...</span
+						>
+					</div> -->
+				</div>
+			</div>
+		</section>
+
+		<!-- 生成舞姿 -->
+		<!-- <section class="section">
+			<div class="container is-max-desktop">
+				<div class="columns is-centered has-text-centered">
+					<div class="column is-four-fifths">
+						<h2 class="title is-3">Generate Dance</h2>
+						<form id="promptForm" enctype="multipart/form-data">
+							<div class="field">
+								<label class="label" for="file">Upload your music file (mp3):</label>
+								<div class="control">
+									<input class="input" type="file" id="file" name="file" accept=".mp3" required />
+								</div>
+							</div>
+							<div class="control">
+								<button class="button is-link" type="submit">Generate</button>
+							</div>
+						</form>
+						<div id="result" class="content" style="margin-top: 20px"></div>
+						<div id="loading" style="display: none">
+							<div class="loader"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section> -->
+		<!-- todo:  ------------------------------------------------------------------------------------------------------------------------------------------------- -->
+
+		<footer class="footer">
+			<div class="container">
+				<div class="content has-text-centered">
+					<a class="icon-link" href="./static/videos/nerfies_paper.pdf">
+						<i class="fas fa-file-pdf"></i>
+					</a>
+					<a class="icon-link" href="https://github.com/keunhong" class="external-link" disabled>
+						<i class="fab fa-github"></i>
+					</a>
+				</div>
+				<div class="columns is-centered">
+					<div class="column is-8">
+						<div class="content">
+							<p>
+								This website is licensed under a
+								<a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"
+									>Creative Commons Attribution-ShareAlike 4.0 International License</a
+								>.
+							</p>
+							<p>
+								This means you are free to borrow the
+								<a href="https://github.com/nerfies/nerfies.github.io">source code</a> of this website, we just ask that you
+								link back to this page in the footer. Please remember to remove the analytics code included in the header of
+								the website which you do not want on your website.
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</footer>
+
+		<!-- 生成panorama和bgm(測試用) -->
+		<!-- <script>
+			document.getElementById('promptForm').addEventListener('submit', function (event) {
+				event.preventDefault();
+
+				const prompt = document.getElementById('prompt').value;
+				const resultDiv = document.getElementById('result');
+				const loadingDiv = document.getElementById('loading');
+
+				// 清空之前的結果
+				resultDiv.innerHTML = '';
+				loadingDiv.style.display = 'block';
+
+				fetch('http://127.0.0.1:5000/generate', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ prompt: prompt }),
+				})
+					.then((response) => response.json())
+					.then((data) => {
+						// 隱藏加載動畫並顯示結果
+						loadingDiv.style.display = 'none';
+						resultDiv.innerHTML = `
+      <div>
+        <img src="${data.image_url}?${new Date().getTime()}" alt="Generated Panorama">
+      </div>
+      <div>
+        <audio controls>
+          <source src="${data.music_url}?${new Date().getTime()}" type="audio/wav">
+          Your browser does not support the audio element.
+        </audio>
+      </div>
+    `;
+					})
+					.catch((error) => {
+						console.error('Error:', error);
+						loadingDiv.style.display = 'none';
+						resultDiv.innerHTML = '<p>An error occurred while generating the result.</p>';
+					});
+			});
+		</script> -->
+
+		<!-- !生成舞姿 changed-->
+		<!-- info: State Manager   -->
+		<script>
+			function createState(initialState) {
+				let state = initialState;
+				const listeners = [];
+				const getState = () => state;
+				const setState = (updater) => {
+					if (typeof updater === 'function') state = updater(state);
+					else state = updater;
+
+					listeners.forEach((listener) => listener(state));
+				};
+				const subscribe = (listener) => {
+					listeners.push(listener);
+					return () => {
+						const index = listeners.indexOf(listener);
+						if (index > -1) listeners.splice(index, 1);
+					};
+				};
+				return [getState, setState, subscribe];
+			}
+
+			const waitForTimeout = (millisecond) => new Promise((resolve) => setTimeout(resolve, millisecond));
+			async function fakeFetch(request, timeout) {
+				await waitForTimeout(timeout);
+				const responseData = { msg: 'done' };
+				return responseData;
+			}
+		</script>
+
+		<!-- API test -->
+
+		<script>
+			const fileUploadInput = document.querySelector('#file');
+			const sliderLabel = document.querySelector('.slider-label');
+			const startTimeInput = document.querySelector('#startTime');
+			const endTimeInput = document.querySelector('#endTime');
+			const sliderTrack = document.querySelector('.slider-track');
+			const startHandle = document.querySelector('#startHandle');
+			const endHandle = document.querySelector('#endHandle');
+			const danceVideo = document.querySelector('.dance-video');
+			const danceVideoTitle = document.querySelector('.video-title');
+			const filenameText = document.querySelector('.filename-text');
+			const promptForm = document.getElementById('promptForm');
+
+			const loadingModal = document.querySelector('.loading-modal');
+			const progressBar = document.querySelector('.progress');
+
+			const historyContainer = document.querySelector('.history-container');
+
+			const increaseStartTimeBtn = document.querySelector('.increase-startTime-btn'); // increase-startTime-btn
+			const decreaseStartTimeBtn = document.querySelector('.decrease-startTime-btn'); // decrease-startTime-btn
+			const increaseEndTimeBtn = document.querySelector('.increase-endTime-btn'); // increase-endTime-btn
+			const decreaseEndTimeBtn = document.querySelector('.decrease-endTime-btn'); // decrease-endTime-btn
+
+			const [timeState, setTimeState, timeSubscribe] = createState(null);
+
+			let file;
+
+			const updateTimeState = (timeSettings) => {
+				if (timeState()) {
+					if (timeSettings.startTime !== null && timeSettings.startTime >= 0 && timeSettings.startTime <= timeState().endTime) {
+						setTimeState((state) => ({ ...state, startTime: timeSettings.startTime.toFixed(3) }));
+					} else if (
+						timeSettings.endTime !== null &&
+						timeSettings.endTime <= timeState().duration &&
+						timeSettings.endTime >= timeState().startTime
+					) {
+						setTimeState((state) => ({ ...state, endTime: timeSettings.endTime.toFixed(3) }));
+					} else setTimeState((pre) => pre);
+				}
+			};
+			const dragHandle = (handle, isStart) => {
+				handle.classList.remove('opacity-0');
+				handle.classList.add('cursor-pointer');
+				handle.onmousedown = function (event) {
+					event.preventDefault();
+					document.onmousemove = function (event) {
+						const rect = sliderTrack.getBoundingClientRect();
+						let rate = (event.clientX - rect.left) / rect.width;
+
+						if (rate < 0) rate = 0;
+						if (rate > 1) rate = 1;
+
+						if (isStart) updateTimeState({ startTime: rate * timeState().duration });
+						else updateTimeState({ endTime: rate * timeState().duration });
+					};
+
+					document.onmouseup = function () {
+						document.onmousemove = null;
+						document.onmouseup = null;
+					};
+				};
+			};
+
+			fileUploadInput.addEventListener('change', (e) => {
+				file = e.target.files[0];
+				const { name } = file;
+				filenameText.innerText = name;
+				const audio = new Audio(URL.createObjectURL(file));
+				audio.addEventListener('loadedmetadata', () => {
+					timeSettings = { duration: audio.duration.toFixed(3), startTime: 0, endTime: audio.duration.toFixed(3) };
+					sliderLabel.innerText = `${timeSettings.duration} sec`;
+					startTimeInput.setAttribute('max', timeSettings.duration);
+					endTimeInput.setAttribute('max', timeSettings.duration);
+
+					startTimeInput.removeAttribute('disabled');
+					endTimeInput.removeAttribute('disabled');
+
+					dragHandle(startHandle, true);
+					dragHandle(endHandle, false);
+
+					const step = 0.01;
+
+					increaseStartTimeBtn.classList.add('cursor-pointer');
+					increaseStartTimeBtn.addEventListener('click', () => {
+						updateTimeState({ startTime: timeState().startTime + step });
+					});
+
+					decreaseStartTimeBtn.classList.add('cursor-pointer');
+					decreaseStartTimeBtn.addEventListener('click', () => {
+						updateTimeState({ startTime: timeState().startTime - step });
+					});
+
+					increaseEndTimeBtn.classList.add('cursor-pointer');
+					increaseEndTimeBtn.addEventListener('click', () => {
+						updateTimeState({ endTime: timeState().endTime + step });
+					});
+
+					decreaseEndTimeBtn.classList.add('cursor-pointer');
+					decreaseEndTimeBtn.addEventListener('click', () => {
+						updateTimeState({ endTime: timeState().endTime - step });
+					});
+
+					startTimeInput.addEventListener('input', (event) => {
+						updateTimeState({ startTime: parseFloat(event.target.value) });
+					});
+
+					endTimeInput.addEventListener('input', (event) => {
+						updateTimeState({ endTime: parseFloat(event.target.value) });
+					});
+
+					setTimeState(timeSettings);
+				});
+			});
+
+			const updateUI = (state) => {
+				startTimeInput.value = state.startTime;
+				endTimeInput.value = state.endTime;
+
+				const startPercent = (state.startTime / state.duration) * 100;
+				const endPercent = (state.endTime / state.duration) * 100;
+
+				const bgc = '#ddd';
+				const color = '#4b83cf';
+
+				sliderTrack.style.background = `linear-gradient(to right, ${bgc} ${startPercent}%, ${color} ${startPercent}%, ${color} ${endPercent}%, ${bgc} ${endPercent}%)`;
+				startHandle.style.left = startPercent + '%';
+				endHandle.style.left = endPercent + '%';
+			};
+
+			timeSubscribe(updateUI);
+
+			const addVideoToHistory = (videoIndex) => {
+				const videoIcon = document.createElement('div');
+				const videoSrc = `./static/videos/test_video${videoIndex}.mp4`;
+				const routes = videoSrc.split('/');
+				const name = routes[routes.length - 1];
+
+				videoIcon.className = 'history-item w-14 cursor-pointer';
+				videoIcon.innerHTML = `
+				<div class="h-14 flex justify-center items-center bg-btn rounded-md">
+					<i class="fas fa-video"></i>
+				</div>
+				<div class="history-item-name mt-2 text-xs text-center w-full break-words">${name}</div>`;
+
+				videoIcon.addEventListener('click', () => {
+					danceVideo.setAttribute('src', videoSrc);
+					danceVideoTitle.innerText = 'Dance video: ' + name;
+					// danceVideo.classList.remove('hidden');
+				});
+				historyContainer.appendChild(videoIcon);
+			};
+
+			let currentVideoIndex = 1;
+
+			promptForm.addEventListener('submit', async (event) => {
+				event.preventDefault();
+				if (timeState() == null) {
+					alert('[test] no any music upload!');
+					return;
+				}
+
+				loadingModal.classList.remove('hidden');
+
+				// fake progress
+				const timeout = 3000;
+				const intervalMS = 100;
+				let generateProgress = 0;
+				const interval = setInterval(() => {
+					generateProgress += intervalMS / timeout;
+					progressBar.style.width = `${generateProgress * 100}%`;
+				}, intervalMS);
+
+				const description = document.querySelector('.description-input').value;
+				const formData = new FormData();
+				formData.append('file', file);
+				formData.append('sid', sid);
+				formData.append('settings', JSON.stringify({ ...timeState(), description }));
+				try {
+					const responseData = await postMusicToServerTest(formData);
+				} catch (error) {
+					console.log(' [debug] error: ', error);
+				}
+
+				// fake progress
+				clearInterval(interval);
+
+				progressBar.style.width = `0%`;
+				loadingModal.classList.add('hidden');
+				// const { video_url } = responseData;
+				const videoSrc = `./static/videos/test_video${currentVideoIndex}.mp4`;
+				const routes = videoSrc.split('/');
+				danceVideo.setAttribute('src', videoSrc);
+				danceVideoTitle.innerText = 'Dance video: ' + routes[routes.length - 1];
+				danceVideo.classList.remove('hidden');
+				addVideoToHistory(currentVideoIndex);
+				currentVideoIndex++;
+			});
+		</script>
+		<script>
+			const HOST = 'http://127.0.0.1:5001';
+			let sid;
+
+			// const socket = io(HOST);
+			// // socket.emit('join', { room: room });
+			// socket.on('join', (data) => {
+			// 	console.log(' [debug] data.sid: ', data.sid);
+			// 	sid = data.sid;
+			// });
+			// socket.on('progress_update', ({ progress }) => {
+			// 	// real progress
+			// 	progressBar.style.width = `${progress * 100}%`;
+			// 	console.log('Progress:', progress);
+			// });
+
+			// socket.on('connect', () => {
+			// 	console.log('Connected to WebSocket server');
+			// });
+			// socket.on('disconnect', () => {
+			// 	console.log('Disconnected from WebSocket server');
+			// });
+
+			const postMusicToServerTest = async (formData) => {
+				const response = await fetch(HOST + '/test', { method: 'POST', body: formData });
+				const responseData = await response.json();
+				console.log(' [debug] response: ', responseData);
+				return {};
+			};
+		</script>
+	</body>
+</html>
