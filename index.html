@@ -579,13 +579,13 @@
 			const updateTimeState = (timeSettings) => {
 				if (timeState()) {
 					if (timeSettings.startTime !== null && timeSettings.startTime >= 0 && timeSettings.startTime <= timeState().endTime) {
-						setTimeState((state) => ({ ...state, startTime: timeSettings.startTime.toFixed(3) }));
+						setTimeState((state) => ({ ...state, startTime: timeSettings.startTime }));
 					} else if (
 						timeSettings.endTime !== null &&
 						timeSettings.endTime <= timeState().duration &&
 						timeSettings.endTime >= timeState().startTime
 					) {
-						setTimeState((state) => ({ ...state, endTime: timeSettings.endTime.toFixed(3) }));
+						setTimeState((state) => ({ ...state, endTime: timeSettings.endTime }));
 					} else setTimeState((pre) => pre);
 				}
 			};
@@ -664,8 +664,8 @@
 			});
 
 			const updateUI = (state) => {
-				startTimeInput.value = state.startTime;
-				endTimeInput.value = state.endTime;
+				startTimeInput.value = parseFloat(state.startTime).toFixed(3);
+				endTimeInput.value = parseFloat(state.endTime).toFixed(3);
 
 				const startPercent = (state.startTime / state.duration) * 100;
 				const endPercent = (state.endTime / state.duration) * 100;
