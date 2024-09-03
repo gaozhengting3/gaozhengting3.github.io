@@ -32,7 +32,7 @@
 		<link rel="stylesheet" href="./static/css/fontawesome.all.min.css" />
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css" />
 		<link rel="stylesheet" href="./static/css/index.css" />
-		<link rel="stylesheet" href="./static/css/test.css" />
+		<!-- <link rel="stylesheet" href="./static/css/test.css" /> -->
 		<link rel="icon" href="./static/images/logo.jpg" />
 
 		<!-- tailwindcss -->
@@ -249,12 +249,15 @@
 			</div>
 			<!--/ Paper video. -->
 		</section>
-
 		<!-- todo:  ------------------------------------------------------------------------------------------------------------------------------------------------- -->
 		<section class="bg-bg px-2 py-2 lg:!px-4 lg:!py-8 text-white relative items-center justify-center h-fit">
 			<div class="flex flex-col w-full h-full bg-nav rounded-md p-4 lg:!p-8">
-				<nav class="flex lg:!p-5">
-					<div class="lg:px-20 text-2xl lg:text-4xl text-white flex items-center">DanceLDM</div>
+				<nav class="flex px-2 pb-2">
+					<div class="flex lg:pb-2 lg:px-8 items-center gap-2">
+						<img src="./static/images/miis_lab_logo.png" class="w-14" alt="logo" />
+						<div class="border border-gray-400 h-8 mx-2"></div>
+						<div class="title text-2xl lg:text-2xl text-gray-300">DanceLDM</div>
+					</div>
 				</nav>
 
 				<form id="promptForm" enctype="multipart/form-data">
@@ -279,8 +282,11 @@
 									</div>
 								</div>
 							</div>
-							<div class="video-container flex flex-col mt-8 p-4 bg-video-container rounded-md">
-								<div class="video-title pb-4 text-lg font-semibold items-center">Dance Video</div>
+							<div class="video-container gap-2 flex flex-col mt-8 p-4 bg-video-container rounded-md">
+								<div class="flex justify-between items-end">
+									<div class="video-title text-lg font-semibold items-center">Dance Video</div>
+									<div class="video-name text-sm text-gray-400"></div>
+								</div>
 								<div class="bg-video rounded-md items-center justify-center flex aspect-video">
 									<video src="" class="dance-video hidden" controls></video>
 								</div>
@@ -368,6 +374,7 @@
 											type="text"
 											placeholder="Please enter action description"
 											class="description-input flex-1 bg-gray-700 p-2 text-slate-200 active:ring-0"
+											disabled
 										/>
 									</div>
 								</div>
@@ -393,10 +400,10 @@
 			</div>
 			<div class="loading-modal absolute flex justify-center items-center inset-0 bg-gray-700/90 hidden">
 				<div class="modal-body flex flex-col items-center gap-4">
-					<div class="text-2xl mt-4">Generating....</div>
+					<div class="progress-label text-2xl mt-4">Generating...</div>
 
 					<div class="progress-container w-screen flex items-center justify-center">
-						<div class="w-[70%] lg:w-96 bg-gray-200 rounded-full h-4 mb-4 bg-gray-600">
+						<div class="w-[70%] lg:w-96 bg-gray-200 rounded-full h-4 mb-4 bg-gray-500">
 							<div class="progress h-4 rounded-full bg-gray-100" style="width: 0%"></div>
 						</div>
 					</div>
@@ -441,6 +448,7 @@
 		</section> -->
 		<!-- todo:  ------------------------------------------------------------------------------------------------------------------------------------------------- -->
 
+		<div class="alert-container fixed top-10 left-1/2 -translate-x-1/2 -z-1 flex flex-col items-center gap-4"></div>
 		<footer class="footer">
 			<div class="container">
 				<div class="content has-text-centered">
@@ -516,7 +524,54 @@
 			});
 		</script> -->
 
-		<!-- !生成舞姿 changed-->
+		<script>
+			const alertContainer = document.querySelector('.alert-container');
+			const waitForTimeout = (millisecond) => new Promise((resolve) => setTimeout(resolve, millisecond));
+			const createErrorElement = (title, message) => {
+				const alertElement = document.createElement('div');
+				alertElement.classList.add(
+					'alert',
+					'z-10',
+					'transition-opacity',
+					'duration-1000',
+					'opacity-0',
+					'bg-red-100',
+					'border-t-4',
+					'border-red-500',
+					'rounded-b',
+					'text-red-900',
+					'px-4',
+					'py-3',
+					'shadow-lg'
+				);
+				const innerHTML = `
+				<div class="flex">
+					<div class="py-1">
+						<svg class="fill-current h-6 w-6 text-red-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+							<path
+								d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"
+							/>
+						</svg>
+					</div>
+					<div>
+						<p class="font-bold">${title}</p>
+						<p class="text-sm">${message}</p>
+					</div>
+				</div>`;
+				alertElement.innerHTML = innerHTML;
+				return alertElement;
+			};
+			const showError = async (title, message) => {
+				const alertElement = createErrorElement(title, message);
+				alertContainer.appendChild(alertElement);
+				alertElement.classList.remove('opacity-0');
+				await waitForTimeout(1000 + 3000);
+				alertElement.classList.add('opacity-0');
+				await waitForTimeout(1000);
+				alertContainer.removeChild(alertElement);
+			};
+		</script>
+
 		<!-- info: State Manager   -->
 		<script>
 			function createState(initialState) {
@@ -538,18 +593,16 @@
 				};
 				return [getState, setState, subscribe];
 			}
-
-			const waitForTimeout = (millisecond) => new Promise((resolve) => setTimeout(resolve, millisecond));
-			async function fakeFetch(request, timeout) {
-				await waitForTimeout(timeout);
-				const responseData = { msg: 'done' };
-				return responseData;
-			}
 		</script>
 
 		<!-- API test -->
 
 		<script>
+			// const testBtn = document.querySelector('.testBtn');
+			// testBtn.addEventListener('click', () => {
+			// 	showError('Warning', 'test error');
+			// });
+
 			const fileUploadInput = document.querySelector('#file');
 			const sliderLabel = document.querySelector('.slider-label');
 			const startTimeInput = document.querySelector('#startTime');
@@ -557,13 +610,16 @@
 			const sliderTrack = document.querySelector('.slider-track');
 			const startHandle = document.querySelector('#startHandle');
 			const endHandle = document.querySelector('#endHandle');
+			const descriptionInput = document.querySelector('.description-input');
 			const danceVideo = document.querySelector('.dance-video');
-			const danceVideoTitle = document.querySelector('.video-title');
+			const danceVideoName = document.querySelector('.video-name');
 			const filenameText = document.querySelector('.filename-text');
+			const submitBtn = document.querySelector('.submit-btn');
 			const promptForm = document.getElementById('promptForm');
 
 			const loadingModal = document.querySelector('.loading-modal');
 			const progressBar = document.querySelector('.progress');
+			const progressLabel = document.querySelector('.progress-label');
 
 			const historyContainer = document.querySelector('.history-container');
 
@@ -573,23 +629,93 @@
 			const decreaseEndTimeBtn = document.querySelector('.decrease-endTime-btn'); // decrease-endTime-btn
 
 			const [timeState, setTimeState, timeSubscribe] = createState(null);
+			const [historyState, setHistoryState, historyStateSubscribe] = createState([]);
+			const [editState, setEditState, editStateSubscribe] = createState({ file: null, settings: null, preID: null });
+			const step = 0.01;
+			const timeSettingBtnList = [
+				{
+					element: increaseStartTimeBtn,
+					handler: () => {
+						updateEditSettings({ startTime: editState().settings.startTime + step });
+					},
+				},
+				{
+					element: decreaseStartTimeBtn,
+					handler: () => {
+						updateEditSettings({ startTime: editState().settings.startTime - step });
+					},
+				},
+				{
+					element: increaseEndTimeBtn,
+					handler: () => {
+						updateEditSettings({ endTime: editState().settings.endTime + step });
+					},
+				},
+				{
+					element: decreaseEndTimeBtn,
+					handler: () => {
+						updateEditSettings({ endTime: editState().settings.endTime - step });
+					},
+				},
+			];
 
 			let file;
+			// let preID = null;
 
-			const updateTimeState = (timeSettings) => {
-				if (timeState()) {
-					if (timeSettings.startTime !== null && timeSettings.startTime >= 0 && timeSettings.startTime <= timeState().endTime) {
-						setTimeState((state) => ({ ...state, startTime: timeSettings.startTime }));
-					} else if (
-						timeSettings.endTime !== null &&
-						timeSettings.endTime <= timeState().duration &&
-						timeSettings.endTime >= timeState().startTime
-					) {
-						setTimeState((state) => ({ ...state, endTime: timeSettings.endTime }));
-					} else setTimeState((pre) => pre);
+			const enableEditControls = () => {
+				const { settings } = editState();
+
+				startTimeInput.setAttribute('max', settings.duration);
+				endTimeInput.setAttribute('max', settings.duration);
+				startTimeInput.removeAttribute('disabled');
+				endTimeInput.removeAttribute('disabled');
+				descriptionInput.removeAttribute('disabled');
+				dragHandle(startHandle, true);
+				dragHandle(endHandle, false);
+				timeSettingBtnList.forEach(({ element, handler }) => {
+					element.addEventListener('click', handler);
+					element.classList.add('cursor-pointer');
+				});
+				startTimeInput.addEventListener('input', (event) => {
+					updateEditSettings({ startTime: parseFloat(event.target.value) });
+				});
+				endTimeInput.addEventListener('input', (event) => {
+					updateEditSettings({ endTime: parseFloat(event.target.value) });
+				});
+				descriptionInput.addEventListener('change', (event) => {
+					updateEditSettings({ description: event.target.value });
+				});
+			};
+			const disabledEditControls = () => {
+				startTimeInput.setAttribute('disabled', true);
+				endTimeInput.setAttribute('disabled', true);
+				descriptionInput.setAttribute('disabled', true);
+				descriptionInput.value = '';
+				disabledDragHandle(startHandle);
+				disabledDragHandle(endHandle);
+				timeSettingBtnList.forEach(({ element, handler }) => {
+					element.removeEventListener('click', handler);
+					element.classList.remove('cursor-pointer');
+				});
+			};
+			const updateEditSettings = (newSettings) => {
+				const { settings } = editState();
+				// console.log(' [debug] call updateTimeSettings! settings, timeSettings: ', settings, timeSettings);
+				if (newSettings.description)
+					setEditState((state) => ({ ...state, settings: { ...settings, description: newSettings.description } }));
+				if (settings) {
+					if (newSettings.startTime !== null && newSettings.startTime <= settings.endTime) {
+						if (newSettings.startTime < 0) setEditState((state) => ({ ...state, settings: { ...settings, startTime: 0 } }));
+						else setEditState((state) => ({ ...state, settings: { ...settings, startTime: newSettings.startTime } }));
+					} else if (newSettings.endTime !== null && newSettings.endTime >= settings.startTime) {
+						if (newSettings.endTime > settings.duration)
+							setEditState((state) => ({ ...state, settings: { ...settings, endTime: settings.duration } }));
+						else setEditState((state) => ({ ...state, settings: { ...settings, endTime: newSettings.endTime } }));
+					} else setEditState((pre) => pre);
 				}
 			};
 			const dragHandle = (handle, isStart) => {
+				const { settings } = editState();
 				handle.classList.remove('opacity-0');
 				handle.classList.add('cursor-pointer');
 				handle.onmousedown = function (event) {
@@ -601,8 +727,8 @@
 						if (rate < 0) rate = 0;
 						if (rate > 1) rate = 1;
 
-						if (isStart) updateTimeState({ startTime: rate * timeState().duration });
-						else updateTimeState({ endTime: rate * timeState().duration });
+						if (isStart) updateEditSettings({ startTime: rate * settings.duration });
+						else updateEditSettings({ endTime: rate * settings.duration });
 					};
 
 					document.onmouseup = function () {
@@ -611,64 +737,57 @@
 					};
 				};
 			};
+			const disabledDragHandle = (handle) => {
+				handle.classList.remove('cursor-pointer');
+				handle.classList.add('opacity-0');
+				handle.onmousedown = null;
+				handle.onmouseup = null;
+				handle.onmousemove = null;
+			};
 
 			fileUploadInput.addEventListener('change', (e) => {
+				disabledEditControls();
 				file = e.target.files[0];
-				const { name } = file;
-				filenameText.innerText = name;
+				console.log(' [debug] input: ', file);
 				const audio = new Audio(URL.createObjectURL(file));
+				console.log(' [debug] audio created: ', audio.duration);
+
 				audio.addEventListener('loadedmetadata', () => {
-					timeSettings = { duration: audio.duration.toFixed(3), startTime: 0, endTime: audio.duration.toFixed(3) };
-					sliderLabel.innerText = `${timeSettings.duration} sec`;
-					startTimeInput.setAttribute('max', timeSettings.duration);
-					endTimeInput.setAttribute('max', timeSettings.duration);
-
-					startTimeInput.removeAttribute('disabled');
-					endTimeInput.removeAttribute('disabled');
-
-					dragHandle(startHandle, true);
-					dragHandle(endHandle, false);
-
-					const step = 0.01;
-
-					increaseStartTimeBtn.classList.add('cursor-pointer');
-					increaseStartTimeBtn.addEventListener('click', () => {
-						updateTimeState({ startTime: timeState().startTime + step });
-					});
-
-					decreaseStartTimeBtn.classList.add('cursor-pointer');
-					decreaseStartTimeBtn.addEventListener('click', () => {
-						updateTimeState({ startTime: timeState().startTime - step });
-					});
-
-					increaseEndTimeBtn.classList.add('cursor-pointer');
-					increaseEndTimeBtn.addEventListener('click', () => {
-						updateTimeState({ endTime: timeState().endTime + step });
-					});
-
-					decreaseEndTimeBtn.classList.add('cursor-pointer');
-					decreaseEndTimeBtn.addEventListener('click', () => {
-						updateTimeState({ endTime: timeState().endTime - step });
-					});
-
-					startTimeInput.addEventListener('input', (event) => {
-						updateTimeState({ startTime: parseFloat(event.target.value) });
-					});
-
-					endTimeInput.addEventListener('input', (event) => {
-						updateTimeState({ endTime: parseFloat(event.target.value) });
-					});
-
-					setTimeState(timeSettings);
+					console.log(' [debug] loadedmetadata! ');
+					const settings = {
+						duration: audio.duration.toFixed(3),
+						startTime: 0,
+						endTime: audio.duration.toFixed(3),
+						description: '',
+					};
+					const editStateT = {
+						file: file,
+						settings,
+						preID: null,
+					};
+					setEditState(editStateT);
+					startTimeInput.setAttribute('max', settings.duration);
+					endTimeInput.setAttribute('max', settings.duration);
+					sliderLabel.innerText = `${settings.duration} sec`;
+					// setTimeState(settings);
 				});
 			});
 
-			const updateUI = (state) => {
-				startTimeInput.value = parseFloat(state.startTime).toFixed(3);
-				endTimeInput.value = parseFloat(state.endTime).toFixed(3);
+			const updateUI = ({ file, preID, settings: { startTime, endTime, duration, description } }) => {
+				if (preID == null) disabledEditControls();
+				else enableEditControls();
 
-				const startPercent = (state.startTime / state.duration) * 100;
-				const endPercent = (state.endTime / state.duration) * 100;
+				if (file) {
+					const { name } = file;
+					filenameText.innerText = name;
+				} else filenameText.innerText = name;
+
+				startTimeInput.value = parseFloat(startTime).toFixed(3);
+				endTimeInput.value = parseFloat(endTime).toFixed(3);
+				descriptionInput.value = description;
+
+				const startPercent = (startTime / duration) * 100;
+				const endPercent = (endTime / duration) * 100;
 
 				const bgc = '#ddd';
 				const color = '#4b83cf';
@@ -678,104 +797,115 @@
 				endHandle.style.left = endPercent + '%';
 			};
 
-			timeSubscribe(updateUI);
-
-			const addVideoToHistory = (videoIndex) => {
-				const videoIcon = document.createElement('div');
-				const videoSrc = `./static/videos/test_video${videoIndex}.mp4`;
-				const routes = videoSrc.split('/');
-				const name = routes[routes.length - 1];
-
-				videoIcon.className = 'history-item w-14 cursor-pointer';
-				videoIcon.innerHTML = `
-				<div class="h-14 flex justify-center items-center bg-btn rounded-md">
-					<i class="fas fa-video"></i>
-				</div>
-				<div class="history-item-name mt-2 text-xs text-center w-full break-words">${name}</div>`;
-
-				videoIcon.addEventListener('click', () => {
-					danceVideo.setAttribute('src', videoSrc);
-					danceVideoTitle.innerText = 'Dance video: ' + name;
-					// danceVideo.classList.remove('hidden');
+			const updateHistory = (state) => {
+				historyContainer.innerHTML = '';
+				state.forEach(({ id, video_url, name, settings }, index) => {
+					const videoIcon = document.createElement('div');
+					videoIcon.className = 'history-item w-14 cursor-pointer';
+					videoIcon.innerHTML = `
+					<div class="h-14 flex justify-center items-center bg-btn rounded-md">
+						<i class="fas fa-video"></i>
+						</div>
+						<div class="history-item-name mt-2 text-xs text-center w-full break-words">${name}</div>`;
+					videoIcon.addEventListener('click', () => {
+						console.log(' [debug] click settings: ', settings);
+						preID = id;
+						danceVideo.setAttribute('src', video_url);
+						danceVideoName.innerText = name;
+						setEditState({ file: null, settings, preID: id });
+					});
+					historyContainer.appendChild(videoIcon);
 				});
-				historyContainer.appendChild(videoIcon);
 			};
 
-			let currentVideoIndex = 1;
+			// timeSubscribe(updateUI);
+			editStateSubscribe(updateUI);
+			historyStateSubscribe(updateHistory);
 
 			promptForm.addEventListener('submit', async (event) => {
 				event.preventDefault();
-				if (timeState() == null) {
-					alert('[test] no any music upload!');
+
+				if (editState().file == null && (editState().settings == null || editState().preID == null)) {
+					console.log(' [debug] editState(): ', editState());
+					showError('Warning', 'Please select a music file or choose a record from history.');
 					return;
 				}
 
 				loadingModal.classList.remove('hidden');
 
-				// fake progress
+				const description = descriptionInput.value;
+				const formData = new FormData();
+				const { file, settings, preID } = editState();
+
+				formData.append('preID', preID);
+				formData.append('file', file);
+				formData.append('sid', sid);
+				formData.append('settings', JSON.stringify({ ...settings }));
+				try {
+					const postMusicToServer = postMusicToServerTest;
+
+					const responseData = await postMusicToServer(formData);
+					const { video_url: videoSrc, id } = responseData;
+
+					// handle History
+					const video_url = HOST + videoSrc;
+					const name = new Date().toLocaleTimeString();
+					const history = { id, video_url, name, settings };
+					setHistoryState((pre) => [...pre, history]);
+
+					// handle Dance Video
+					danceVideo.setAttribute('src', video_url);
+					danceVideoName.innerText = name;
+					danceVideo.classList.remove('hidden');
+
+					setEditState((pre) => ({ preID: id, file: null, settings }));
+					fileUploadInput.value = '';
+				} catch (error) {
+					console.log(' [debug] error: ', error);
+					showError('Error', 'Failed to connect to server.');
+				}
+				progressBar.style.width = `0%`;
+				progressLabel.innerText = `Generating...\t0%`;
+				loadingModal.classList.add('hidden');
+			});
+		</script>
+
+		<!-- backend service -->
+		<script>
+			const HOST = 'http://114.33.208.144:5001';
+			// const HOST = 'http://127.0.0.1:5001';
+			// const HOST = 'http://127.0.0.1:5001';
+			let sid;
+
+			// Socket handler
+			const socket = io(HOST);
+			socket.on('join', (data) => {
+				sid = data.sid;
+			});
+			socket.on('progress_update', ({ progress }) => {
+				progressLabel.innerText = `Generating...\t${parseInt(progress * 100)}%`;
+				progressBar.style.width = `${progress * 100}%`;
+			});
+
+			async function fakeFetch(request) {
 				const timeout = 3000;
 				const intervalMS = 100;
 				let generateProgress = 0;
 				const interval = setInterval(() => {
 					generateProgress += intervalMS / timeout;
 					progressBar.style.width = `${generateProgress * 100}%`;
+					progressLabel.innerText = `Generating...\t${parseInt(generateProgress * 100)}%`;
 				}, intervalMS);
-
-				const description = document.querySelector('.description-input').value;
-				const formData = new FormData();
-				formData.append('file', file);
-				formData.append('sid', sid);
-				formData.append('settings', JSON.stringify({ ...timeState(), description }));
-				try {
-					const responseData = await postMusicToServerTest(formData);
-				} catch (error) {
-					console.log(' [debug] error: ', error);
-				}
-
-				// fake progress
+				await waitForTimeout(timeout);
 				clearInterval(interval);
-
-				progressBar.style.width = `0%`;
-				loadingModal.classList.add('hidden');
-				// const { video_url } = responseData;
-				const videoSrc = `./static/videos/test_video${currentVideoIndex}.mp4`;
-				const routes = videoSrc.split('/');
-				danceVideo.setAttribute('src', videoSrc);
-				danceVideoTitle.innerText = 'Dance video: ' + routes[routes.length - 1];
-				danceVideo.classList.remove('hidden');
-				addVideoToHistory(currentVideoIndex);
-				currentVideoIndex++;
-			});
-		</script>
-		<script>
-			const HOST = 'http://127.0.0.1:5001';
-			let sid;
-
-			// const socket = io(HOST);
-			// // socket.emit('join', { room: room });
-			// socket.on('join', (data) => {
-			// 	console.log(' [debug] data.sid: ', data.sid);
-			// 	sid = data.sid;
-			// });
-			// socket.on('progress_update', ({ progress }) => {
-			// 	// real progress
-			// 	progressBar.style.width = `${progress * 100}%`;
-			// 	console.log('Progress:', progress);
-			// });
-
-			// socket.on('connect', () => {
-			// 	console.log('Connected to WebSocket server');
-			// });
-			// socket.on('disconnect', () => {
-			// 	console.log('Disconnected from WebSocket server');
-			// });
-
-			const postMusicToServerTest = async (formData) => {
-				const response = await fetch(HOST + '/test', { method: 'POST', body: formData });
+				const responseData = { id: 1, success: true, message: 'done', video_url: './static/videos/test_video1.mp4' };
+				return responseData;
+			}
+			async function postMusicToServerTest(formData) {
+				const response = await fetch(HOST + '/generate', { method: 'POST', body: formData });
 				const responseData = await response.json();
-				console.log(' [debug] response: ', responseData);
-				return {};
-			};
+				return responseData;
+			}
 		</script>
 	</body>
 </html>
