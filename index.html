@@ -825,7 +825,7 @@
 						<div class="history-item-name mt-2 text-xs text-center w-full break-words">${name}</div>`;
 					videoIcon.addEventListener('click', () => {
 						preID = id;
-						danceVideo.setAttribute('src', video_url);
+						if (video_url !== danceVideo.src) danceVideo.setAttribute('src', video_url);
 						danceVideoName.innerText = name;
 						setEditState({ file: null, settings, preID: id });
 					});
@@ -872,7 +872,7 @@
 					setHistoryState((pre) => [...pre, history]);
 
 					// handle Dance Video
-					danceVideo.setAttribute('src', video_url);
+					if (video_url !== danceVideo.src) danceVideo.setAttribute('src', video_url);
 					danceVideoName.innerText = name;
 					danceVideo.classList.remove('hidden');
 
