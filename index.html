@@ -866,7 +866,7 @@
 					// handle History
 					let video_url;
 					if (fake) video_url = videoSrc;
-					else video_url = HOST + videoSrc;
+					else video_url = host + videoSrc;
 					const name = new Date().toLocaleTimeString('en-US');
 					const history = { id, video_url, name, settings };
 					setHistoryState((pre) => [...pre, history]);
@@ -890,12 +890,15 @@
 
 		<!-- backend service -->
 		<script>
-			// const HOST = 'http://127.0.0.1:5001';
+			const LOCALHOST = 'http://127.0.0.1:5001';
 			const HOST = 'https://native-oarfish-highly.ngrok-free.app';
+			const host =
+				window.location.host === 'gaozhengting3.github.io' || window.location.host === 'miislab.github.io' ? HOST : LOCALHOST;
+			console.log(' [debug] host: ', host);
 			let sid;
 
 			// Socket handler
-			const socket = io(HOST, { transports: ['websocket', 'polling'] });
+			const socket = io(host, { transports: ['websocket', 'polling'] });
 			socket.on('join', (data) => {
 				console.log(' [debug] connect to socket server: ');
 				sid = data.sid;
@@ -922,7 +925,7 @@
 				return responseData;
 			}
 			async function postMusicToServerTest(formData) {
-				const response = await fetch(HOST + '/generate', { method: 'POST', body: formData });
+				const response = await fetch(host + '/generate', { method: 'POST', body: formData });
 				const responseData = await response.json();
 				return responseData;
 			}
