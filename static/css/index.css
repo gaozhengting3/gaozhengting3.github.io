@@ -265,7 +265,7 @@ body {
 .slider-handle::after {
 	position: absolute;
 	content: ' ';
-	top: 50%;
+	top: 0%;
 	width: 3px;
 	height: 14px;
 	background-color: #4b83cf;
