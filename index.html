@@ -895,7 +895,7 @@
 			let sid;
 
 			// Socket handler
-			const socket = io(HOST);
+			const socket = io(HOST, { transports: ['websocket', 'polling'] });
 			socket.on('join', (data) => {
 				console.log(' [debug] connect to socket server: ');
 				sid = data.sid;
@@ -904,7 +904,9 @@
 				progressLabel.innerText = `Generating...\t${parseInt(progress * 100)}%`;
 				progressBar.style.width = `${progress * 100}%`;
 			});
-
+			socket.on('connect_error', (err) => {
+				console.error('Socket connection error:', err);
+			});
 			async function fakeFetch(request) {
 				const timeout = 1500;
 				const intervalMS = 100;
