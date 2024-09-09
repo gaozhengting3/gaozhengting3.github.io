@@ -33,7 +33,7 @@
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css" />
 		<link rel="stylesheet" href="./static/css/index.css" />
 		<!-- <link rel="stylesheet" href="./static/css/test.css" /> -->
-		<link rel="icon" href="./static/images/logo.jpg" />
+		<link rel="icon" href="./static/images/logo.png" />
 
 		<!-- tailwindcss -->
 		<script src="https://cdn.tailwindcss.com"></script>
@@ -368,15 +368,17 @@
 								</div>
 
 								<div class="setting mb-5">
-									<div class="description mb-2">Action Description</div>
-									<div class="time-input flex">
-										<input
-											type="text"
-											placeholder="Please enter action description"
-											class="description-input flex-1 bg-gray-700 p-2 text-slate-200 active:ring-0"
-											disabled
-										/>
-									</div>
+									<label for="action-description" class="description"
+										>Action Description
+										<div class="time-input flex mt-2">
+											<input
+												id="action-description"
+												type="text"
+												placeholder="Please enter action description"
+												class="description-input flex-1 bg-gray-700 p-2 text-slate-200 active:ring-0"
+												disabled
+											/></div
+									></label>
 								</div>
 								<div class="setting-submit flex">
 									<input
@@ -658,6 +660,26 @@
 					},
 				},
 			];
+			const timeSettingInputList = [
+				{
+					element: startTimeInput,
+					handler: (event) => {
+						updateEditSettings({ startTime: parseFloat(event.target.value) });
+					},
+				},
+				{
+					element: endTimeInput,
+					handler: (event) => {
+						updateEditSettings({ endTime: parseFloat(event.target.value) });
+					},
+				},
+				{
+					element: descriptionInput,
+					handler: (event) => {
+						updateEditSettings({ description: event.target.value });
+					},
+				},
+			];
 
 			let file;
 			// let preID = null;
@@ -676,14 +698,8 @@
 					element.addEventListener('click', handler);
 					element.classList.add('cursor-pointer');
 				});
-				startTimeInput.addEventListener('input', (event) => {
-					updateEditSettings({ startTime: parseFloat(event.target.value) });
-				});
-				endTimeInput.addEventListener('input', (event) => {
-					updateEditSettings({ endTime: parseFloat(event.target.value) });
-				});
-				descriptionInput.addEventListener('change', (event) => {
-					updateEditSettings({ description: event.target.value });
+				timeSettingInputList.forEach(({ element, handler }) => {
+					element.addEventListener('input', handler);
 				});
 			};
 			const disabledEditControls = () => {
@@ -697,13 +713,15 @@
 					element.removeEventListener('click', handler);
 					element.classList.remove('cursor-pointer');
 				});
+				timeSettingInputList.forEach(({ element, handler }) => {
+					element.removeEventListener('input', handler);
+				});
 			};
 			const updateEditSettings = (newSettings) => {
 				const { settings } = editState();
-				// console.log(' [debug] call updateTimeSettings! settings, timeSettings: ', settings, timeSettings);
 				if (newSettings.description)
 					setEditState((state) => ({ ...state, settings: { ...settings, description: newSettings.description } }));
-				if (settings) {
+				else if (settings) {
 					if (newSettings.startTime !== null && newSettings.startTime <= settings.endTime) {
 						if (newSettings.startTime < 0) setEditState((state) => ({ ...state, settings: { ...settings, startTime: 0 } }));
 						else setEditState((state) => ({ ...state, settings: { ...settings, startTime: newSettings.startTime } }));
@@ -748,12 +766,9 @@
 			fileUploadInput.addEventListener('change', (e) => {
 				disabledEditControls();
 				file = e.target.files[0];
-				console.log(' [debug] input: ', file);
 				const audio = new Audio(URL.createObjectURL(file));
-				console.log(' [debug] audio created: ', audio.duration);
 
 				audio.addEventListener('loadedmetadata', () => {
-					console.log(' [debug] loadedmetadata! ');
 					const settings = {
 						duration: audio.duration.toFixed(3),
 						startTime: 0,
@@ -791,6 +806,7 @@
 
 				const bgc = '#ddd';
 				const color = '#4b83cf';
+				// const color = '#0ea5e9';
 
 				sliderTrack.style.background = `linear-gradient(to right, ${bgc} ${startPercent}%, ${color} ${startPercent}%, ${color} ${endPercent}%, ${bgc} ${endPercent}%)`;
 				startHandle.style.left = startPercent + '%';
@@ -808,7 +824,6 @@
 						</div>
 						<div class="history-item-name mt-2 text-xs text-center w-full break-words">${name}</div>`;
 					videoIcon.addEventListener('click', () => {
-						console.log(' [debug] click settings: ', settings);
 						preID = id;
 						danceVideo.setAttribute('src', video_url);
 						danceVideoName.innerText = name;
@@ -826,7 +841,6 @@
 				event.preventDefault();
 
 				if (editState().file == null && (editState().settings == null || editState().preID == null)) {
-					console.log(' [debug] editState(): ', editState());
 					showError('Warning', 'Please select a music file or choose a record from history.');
 					return;
 				}
@@ -842,14 +856,18 @@
 				formData.append('sid', sid);
 				formData.append('settings', JSON.stringify({ ...settings }));
 				try {
-					const postMusicToServer = postMusicToServerTest;
-
+					const fake = false;
+					let postMusicToServer;
+					if (fake) postMusicToServer = fakeFetch;
+					else postMusicToServer = postMusicToServerTest;
 					const responseData = await postMusicToServer(formData);
 					const { video_url: videoSrc, id } = responseData;
 
 					// handle History
-					const video_url = HOST + videoSrc;
-					const name = new Date().toLocaleTimeString();
+					let video_url;
+					if (fake) video_url = videoSrc;
+					else video_url = HOST + videoSrc;
+					const name = new Date().toLocaleTimeString('en-US');
 					const history = { id, video_url, name, settings };
 					setHistoryState((pre) => [...pre, history]);
 
@@ -872,14 +890,14 @@
 
 		<!-- backend service -->
 		<script>
-			const HOST = 'http://114.33.208.144:5001';
 			// const HOST = 'http://127.0.0.1:5001';
-			// const HOST = 'http://127.0.0.1:5001';
+			const HOST = 'https://native-oarfish-highly.ngrok-free.app';
 			let sid;
 
 			// Socket handler
 			const socket = io(HOST);
 			socket.on('join', (data) => {
+				console.log(' [debug] connect to socket server: ');
 				sid = data.sid;
 			});
 			socket.on('progress_update', ({ progress }) => {
@@ -888,7 +906,7 @@
 			});
 
 			async function fakeFetch(request) {
-				const timeout = 3000;
+				const timeout = 1500;
 				const intervalMS = 100;
 				let generateProgress = 0;
 				const interval = setInterval(() => {
