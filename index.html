@@ -838,7 +838,7 @@
 					const videoIcon = document.createElement('div');
 					videoIcon.className = 'history-item w-14 cursor-pointer ';
 					videoIcon.innerHTML = `
-					<div class="h-14 flex justify-center items-center bg-btn rounded-md">
+					<div class="h-14 flex justify-center items-center bg-btn active:bg-violet-500/90 rounded-md">
 						<i class="fas fa-video"></i>
 						</div>
 						<div class="history-item-name mt-2 text-xs text-center w-full break-words">${name}</div>`;
@@ -910,6 +910,8 @@
 
 		<!-- backend service -->
 		<script>
+			// const LOCALHOST = 'http://114.33.208.144:5001';
+			// const LOCALHOST = 'http://192.168.1.197:5001';
 			const LOCALHOST = 'http://127.0.0.1:5001';
 			const HOST = 'https://native-oarfish-highly.ngrok-free.app';
 			const host =
